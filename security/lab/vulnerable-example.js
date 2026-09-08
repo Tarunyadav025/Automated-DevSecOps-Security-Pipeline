@@ -1,6 +1,12 @@
-// LAB ONLY — intentionally vulnerable code.
-// This file must never be executed or deployed.
+// LAB ONLY — safe replacement for the intentionally vulnerable example.
+// This file demonstrates how untrusted input should be handled.
 
 const userInput = "demo-input";
 
-eval(userInput);
+const allowedInputs = new Set(["demo-input", "safe-input"]);
+
+if (!allowedInputs.has(userInput)) {
+  throw new Error("Invalid input");
+}
+
+console.log(`Accepted input: ${userInput}`);
