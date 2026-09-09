@@ -1,5 +1,7 @@
 FROM node:22-alpine3.22 AS runtime
 
+RUN apk upgrade --no-cache
+
 ENV NODE_ENV=production
 WORKDIR /app
 
