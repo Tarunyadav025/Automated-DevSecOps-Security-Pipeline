@@ -184,7 +184,7 @@ jobs:
   secure-deployment:
     name: Secure Deployment
     needs: security-gate
-    if: needs.security-gate.result == 'success'
+    if: ${{ always() && needs.security-gate.result == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
