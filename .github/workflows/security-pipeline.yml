@@ -143,3 +143,41 @@ jobs:
         if: always()
         with:
           sarif_file: scorecard-results.sarif
+  security-gate:
+    name: Security Gate
+    if: always()
+    needs:
+      - test
+      - codeql
+      - semgrep
+      - secrets
+      - dependency-review
+      - trivy-filesystem
+      - container-scan
+      - zap-baseline
+      - scorecard
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enforce security checks
+        run: |
+          if [[ "${{ needs.test.result }}" != "success" ||
+                "${{ needs.codeql.result }}" != "success" ||
+                "${{ needs.semgrep.result }}" != "success" ||
+                "${{ needs.secrets.result }}" != "success" ||
+                "${{ needs.trivy-filesystem.result }}" != "success" ||
+                "${{ needs.container-scan.result }}" != "success" ||
+                "${{ needs.zap-baseline.result }}" != "success" ||
+                "${{ needs.scorecard.result }}" != "success" ]]; then
+            echo "Security Gate: BLOCKED"
+            exit 1
+          fi
+
+          if [[ "${{ github.event_name }}" == "pull_request" &&
+                "${{ needs.dependency-review.result }}" != "success" ]]; then
+            echo "Security Gate: BLOCKED - Dependency Review failed"
+            exit 1
+          fi
+
+          echo "Security Gate: PASSED"
